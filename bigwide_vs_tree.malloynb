@@ -1,0 +1,8 @@
+>>>markdown
+# Big Wide Table vs Tree
+SQL (and LookML) present joined data as a _Big Wide Table_.  Each alias joined tables is prestented as an alias.
+>>>sql
+SELECT
+  count(*)
+FROM 'data/order_items.parquet' as items
+LEFT JOIN UNNEST(items.orders)
