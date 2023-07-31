@@ -1,0 +1,70 @@
+>>>markdown
+# Flatten the ecommerce dataset into unnested tables
+>>>malloy
+source: users is duckdb.table('old/users.parquet') { 
+  rename: user_id is id
+}
+
+source: inventory_items is duckdb.table('old/inventory_items.parquet') {
+  accept: cost, created_at, sold_at, id, product_id
+  rename: inventory_item_id is id
+}
+
+source: products is duckdb.table('old/products.parquet') {
+  rename: product_id is id
+}
+
+source: order_items is duckdb.table('old/order_items.parquet') {
+  rename: item_id is id
+  join_one: inventory_items is inventory_items {
+    join_one: products on product_id = products.product_id
+  } on inventory_items.inventory_item_id = inventory_item_id
+  join_one: users on user_id = users.user_id
+}
+
+query: orders is order_items -> {
+  group_by:
+    order_id is order_id:::number, 
+    status,
+    created_at
+    returned_at
+    delivered_at
+    shipped_at
+    user_id
+}
+
+
+query: items is order_items -> {
+  project:
+    item_id
+    order_id,
+    inventory_item_id
+    sale_price
+    inventory_items.product_id
+}
+>>>sql
+-- connection: duckdb
+COPY (
+  %{orders}%
+) to 'data/orders.parquet'
+>>>sql
+COPY (
+  %{items}%
+) to 'data/items.parquet'
+>>>sql
+COPY (
+  %{inventory_items ->{project: *}}%
+) to 'data/inventory_items.parquet'
+>>>sql
+COPY (
+  %{products ->{project: *}}%
+) to 'data/products.parquet'
+>>>sql
+COPY (
+  %{users ->{project: *}}%
+) to 'data/users.parquet'
+>>>sql
+SELECT 
+  *
+ FROM 'data/orders.parquet'
+ qualify row_number() over (partition by order_id) = 2
