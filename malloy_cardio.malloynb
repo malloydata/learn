@@ -1,0 +1,38 @@
+>>>markdown
+# Malloy Cardio
+
+This set of exercises is sure to get your heartrate up and your brain firing on all cylinders.
+
+Fire up your favorite workout playlist and dive in 👇
+>>>markdown
+## Step 0: Get Ready
+
+The first step in any Malloy data modeling exercise is to declare your sources. In the following code cell, declare a source for each of the tables in the ecommerce dataset. Refer to the [documentation for the precise syntax](https://malloydata.github.io/documentation/language/source).
+>>>malloy
+// users table at data/users.parquet
+source: users is duckdb.table('data/ecommerce/users.parquet')
+
+// Create a source for the rest of the tables in this dataset:
+
+// products
+source: products is duckdb.table('data/ecommerce/products.parquet')
+
+// inventory_items
+source: inventory_items is duckdb.table('data/ecommerce/inventory_items.parquet')
+
+// orders
+source: orders is duckdb.table('data/ecommerce/orders.parquet')
+>>>markdown
+## Step 1: Warmup
+
+Simple queries are easy to write in Malloy. The following query looks at the count of users by gender:
+>>>malloy
+run: users -> {
+  group_by: gender
+  aggregate: user_count is count()
+}
+>>>markdown
+Now your turn to try. Write a query that calculates the count of orders by status.
+>>>malloy
+// Calculate the count of orders by status:
+\>>>markdown

@@ -1,19 +1,19 @@
 >>>malloy
-source: products is duckdb.table('data/products.parquet')
-source: users is duckdb.table('data/users.parquet') {
+source: products is duckdb.table('data/ecommerce/products.parquet')
+source: users is duckdb.table('data/ecommerce/users.parquet') {
   measure: average_age is age.avg()
 }
-source: inventory_items is duckdb.table('data/inventory_items.parquet') {
+source: inventory_items is duckdb.table('data/ecommerce/inventory_items.parquet') {
   measure: average_cost is cost.avg()
 }
-source: items is duckdb.table('data/items.parquet') {
+source: items is duckdb.table('data/ecommerce/items.parquet') {
   join_one: products on product_id = products.product_id
   join_one: inventory_items on inventory_item_id = inventory_items.inventory_item_id
   measure: 
     total_revenue is sale_price.sum()
     average_item_price is sale_price.avg()
 }
-source: orders is duckdb.table('data/orders.parquet') {
+source: orders is duckdb.table('data/ecommerce/orders.parquet') {
   join_many: items on order_id = items.order_id
   join_one: users on user_id = users.user_id
 }
@@ -28,7 +28,7 @@ run: orders -> {
 
 }
 >>>malloy
-source: airports is duckdb.table('data/airports.parquet') {
+source: airports is duckdb.table('data/faa/airports.parquet') {
   measure:
     airport_count is count()
     average_elevation is elevation.avg()
