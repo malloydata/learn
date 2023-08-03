@@ -1,7 +1,7 @@
 >>>markdown
 # Big Wide Table vs Tree
 SQL (and LookML) present joined data as a _Big Wide Table_.  Each alias joined tables is prestented as an alias.
->>>malloy
+>>>sql
 \>>>sql
 SELECT
   *

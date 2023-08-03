@@ -5,7 +5,7 @@ This set of exercises is sure to get your heartrate up and your brain firing on 
 
 Fire up your favorite workout playlist and dive in 👇
 >>>markdown
-## Step 0: Get Ready
+## Step 0: Get Ready 
 
 The first step in any Malloy data modeling exercise is to declare your sources. In the following code cell, declare a source for each of the tables in the ecommerce dataset. Refer to the [documentation for the precise syntax](https://malloydata.github.io/documentation/language/source).
 >>>malloy
@@ -17,11 +17,16 @@ source: users is duckdb.table('data/ecommerce/users.parquet')
 // products
 source: products is duckdb.table('data/ecommerce/products.parquet')
 
-// inventory_items
-source: inventory_items is duckdb.table('data/ecommerce/inventory_items.parquet')
-
 // orders
-source: orders is duckdb.table('data/ecommerce/orders.parquet')
+source: orders is duckdb.table('data/ecommerce/orders.parquet') {
+  join_one: users on user_id = users.user_id
+}
+
+// items
+source: items is duckdb.table('data/ecommerce/items.parquet') {
+  join_one: orders on order_id = orders.order_id
+  join_one: products on product_id = products.product_id
+}
 >>>markdown
 ## Step 1: Warmup
 
@@ -35,4 +40,38 @@ run: users -> {
 Now your turn to try. Write a query that calculates the count of orders by status.
 >>>malloy
 // Calculate the count of orders by status:
-\>>>markdown
+
+// run: orders -> {
+//   ...
+// }
+>>>markdown
+## Step 2: Joins
+In this data model, `items` and `orders` are related fact tables, and the `users` and `products` tables are dimensions that join in. Update the sources above to include these joins:
+- `items` joins to `orders` via `order_id`
+- `items` joins to `products` via `product_id`
+- `orders` joins to `users` via `user_id`
+>>>markdown
+## Step 3: Using Joins
+Now that we have the joins modeled, let's run a query that takes advantage of them. For each product category, find the average age of users who ordered from that category.
+>>>malloy
+// Compute the average age of users who ordered from each category
+>>>markdown
+## Step 4: Calculating Percent of Total
+Malloy makes "percent of total" calculations very easy. For each product category, what is the total revenue, and calculate the percent of overall revenue.
+>>>malloy
+// Compute revenue for each product category, as well as percent of revenue relative to overall
+>>>markdown
+## Step 6: Nested Query
+The above query shows us revenue numbers per product category. Let's drill in deeper with a nested query. Can you add a `nest` to this query to show the top 5 brands by revenue for each category?
+>>>malloy
+// For each product category, show top 5 brands by revenue
+>>>markdown
+## Step 8: Saving this query
+Update the data model to save the "top brands" query directly onto the source. Now modify what you previously wrote to use this saved query.
+>>>malloy
+// Update what you previously wrote to use a saved query from the Source
+>>>markdown
+## Step 9: Refining a Saved Query
+Try using a query refinement to take the analysis further. Perhaps you can filter to only look at top brands where the `department` is Men or Women? Or perhaps you want to only look at brands with products above a certain `retail_price` threshold?
+>>>malloy
+// Update this query again to include a refinement
