@@ -75,3 +75,6 @@ Update the data model to save the "top brands" query directly onto the source. N
 Try using a query refinement to take the analysis further. Perhaps you can filter to only look at top brands where the `department` is Men or Women? Or perhaps you want to only look at brands with products above a certain `retail_price` threshold?
 >>>malloy
 // Update this query again to include a refinement
+>>>markdown
+## Step 10: Keep Exploring!
+There are a handful of other datasets in this repository that are ready for modeling, exploration, and analysis. Take what you've learned here and try to apply it to another dataset in the `data` subfolder. Or better yet, find a dataset relevant to your day-to-day work and use Malloy to model and analyze it!
