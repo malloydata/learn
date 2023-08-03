@@ -1,0 +1,10 @@
+>>>malloy
+source: aircraft_models is duckdb.table('data/faa/aircraft_models.parquet')
+
+source: aircraft is duckdb.table('data/faa/aircraft.parquet')
+
+source: airports is duckdb.table('data/faa/airports.parquet')
+
+source: carriers is duckdb.table('data/faa/carriers.parquet')
+
+source: flights is duckdb.table('data/faa/flights.parquet')

@@ -1,0 +1,2 @@
+>>>malloy
+source: ga_sample is duckdb.table('data/ga_sample/ga_sample.parquet')
