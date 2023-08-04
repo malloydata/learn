@@ -15,18 +15,10 @@ source: users is duckdb.table('data/ecommerce/users.parquet')
 // Create a source for the rest of the tables in this dataset:
 
 // products
-source: products is duckdb.table('data/ecommerce/products.parquet')
 
 // orders
-source: orders is duckdb.table('data/ecommerce/orders.parquet') {
-  join_one: users on user_id = users.user_id
-}
 
 // items
-source: items is duckdb.table('data/ecommerce/items.parquet') {
-  join_one: orders on order_id = orders.order_id
-  join_one: products on product_id = products.product_id
-}
 >>>markdown
 ## Step 1: Warmup
 
@@ -61,20 +53,20 @@ Malloy makes "percent of total" calculations very easy. For each product categor
 >>>malloy
 // Compute revenue for each product category, as well as percent of revenue relative to overall
 >>>markdown
-## Step 6: Nested Query
+## Step 5: Nested Query
 The above query shows us revenue numbers per product category. Let's drill in deeper with a nested query. Can you add a `nest` to this query to show the top 5 brands by revenue for each category?
 >>>malloy
 // For each product category, show top 5 brands by revenue
 >>>markdown
-## Step 8: Saving this query
+## Step 6: Saving this query
 Update the data model to save the "top brands" query directly onto the source. Now modify what you previously wrote to use this saved query.
 >>>malloy
 // Update what you previously wrote to use a saved query from the Source
 >>>markdown
-## Step 9: Refining a Saved Query
+## Step 7: Refining a Saved Query
 Try using a query refinement to take the analysis further. Perhaps you can filter to only look at top brands where the `department` is Men or Women? Or perhaps you want to only look at brands with products above a certain `retail_price` threshold?
 >>>malloy
 // Update this query again to include a refinement
 >>>markdown
-## Step 10: Keep Exploring!
+## Step 8: Keep Exploring!
 There are a handful of other datasets in this repository that are ready for modeling, exploration, and analysis. Take what you've learned here and try to apply it to another dataset in the `data` subfolder. Or better yet, find a dataset relevant to your day-to-day work and use Malloy to model and analyze it!
