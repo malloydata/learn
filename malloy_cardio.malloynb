@@ -42,7 +42,6 @@ In this data model, `items` and `orders` are related fact tables, and the `users
 - `orders` joins to `items` via `order_id`
 - `orders` joins to `users` via `user_id`
 - `items` joins to `products` via `product_id`
->>>malloy
 >>>markdown
 ## Step 3: Using Joins
 Now that we have the joins modeled, let's run a query that takes advantage of them. For each product category, find the average age of users who ordered from that category.
