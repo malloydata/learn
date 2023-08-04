@@ -16,9 +16,9 @@ source: users is duckdb.table('data/ecommerce/users.parquet')
 
 // products
 
-// orders
-
 // items
+
+// orders
 >>>markdown
 ## Step 1: Warmup
 
@@ -39,24 +39,31 @@ Now your turn to try. Write a query that calculates the count of orders by statu
 >>>markdown
 ## Step 2: Joins
 In this data model, `items` and `orders` are related fact tables, and the `users` and `products` tables are dimensions that join in. Update the sources above to include these joins:
-- `items` joins to `orders` via `order_id`
-- `items` joins to `products` via `product_id`
+- `orders` joins to `items` via `order_id`
 - `orders` joins to `users` via `user_id`
+- `items` joins to `products` via `product_id`
+>>>malloy
 >>>markdown
 ## Step 3: Using Joins
 Now that we have the joins modeled, let's run a query that takes advantage of them. For each product category, find the average age of users who ordered from that category.
 >>>malloy
 // Compute the average age of users who ordered from each category
 >>>markdown
-## Step 4: Calculating Percent of Total
+## Step 4a: Calculating Percent of Total
 Malloy makes "percent of total" calculations very easy. For each product category, what is the total revenue, and calculate the percent of overall revenue.
 >>>malloy
 // Compute revenue for each product category, as well as percent of revenue relative to overall
 >>>markdown
-## Step 5: Nested Query
+## Step 4b: Number Formatting
+[Add a tag](https://malloydata.github.io/documentation/visualizations/numbers#-percent) to the percent of total field so that the values render as percentages.
+>>>markdown
+## Step 5a: Nested Query
 The above query shows us revenue numbers per product category. Let's drill in deeper with a nested query. Can you add a `nest` to this query to show the top 5 brands by revenue for each category?
 >>>malloy
 // For each product category, show top 5 brands by revenue
+>>>markdown
+## Step 5b: Charting
+Add a tag to the nested query to [render it as a bar chart](https://malloydata.github.io/documentation/visualizations/bar_charts).
 >>>markdown
 ## Step 6: Saving this query
 Update the data model to save the "top brands" query directly onto the source. Now modify what you previously wrote to use this saved query.
