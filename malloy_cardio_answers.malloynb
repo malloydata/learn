@@ -15,10 +15,27 @@ source: users is duckdb.table('data/ecommerce/users.parquet')
 // Create a source for the rest of the tables in this dataset:
 
 // products
+source: products is duckdb.table('data/ecommerce/products.parquet')
 
-// items
+// order_items
+source: order_items is duckdb.table('data/ecommerce/order_items.parquet') {
+  join_one: products on product_id = products.product_id
+}
 
 // orders
+source: orders is duckdb.table('data/ecommerce/orders.parquet') {
+  join_many: order_items on order_id = order_items.order_id
+  join_one: users on user_id = users.user_id
+
+  measure:
+    total_sales is order_items.sum(order_items.sale_price)
+
+  query: rev_by_brand is {
+    group_by: order_items.products.brand
+    aggregate: total_sales
+    top: 5
+  }
+}
 >>>markdown
 ## Step 1: Warmup
 
@@ -33,9 +50,10 @@ Now your turn to try. Write a query that calculates the count of orders by statu
 >>>malloy
 // Calculate the count of orders by status:
 
-// run: orders -> {
-//   ...
-// }
+run: orders -> {
+  group_by: status
+  aggregate: order_count is count()
+}
 >>>markdown
 ## Step 2: Joins
 In this data model, `order_items` and `orders` are related fact tables, and the `users` and `products` tables are dimensions that join in. Update the sources above to include these [joins](https://malloydata.github.io/documentation/language/join):
@@ -46,25 +64,43 @@ In this data model, `order_items` and `orders` are related fact tables, and the 
 ## Step 3: Using Joins
 Now that we have the joins modeled, let's run a query that takes advantage of them. Count the number of orders by user's country.
 >>>malloy
-// Compute the average age of users who ordered from each category
+// Count the number of orders per user's country:
+run: orders -> {
+  group_by: users.country
+  aggregate: order_count is count()
+}
 >>>markdown
 ## Step 4a: Aggregate Locality
-Malloy makes the promise that regardless of what joins you have defined, your aggregate calculations will always be correct. This means you no longer need to worry about SQL "gotchas" like join fan-outs or chasm traps. In Malloy, this concept is called [aggregate locality](https://malloydata.github.io/documentation/language/aggregates#aggregate-locality).
+Malloy makes the promise that regardless of what joins you have defined, your aggregate calculations will always be correct. This means you no longer need to worry about SQL "gotchas" like join fan-outs. In Malloy, this concept is called [aggregate locality](https://malloydata.github.io/documentation/language/aggregates#aggregate-locality).
 
-To see this in action, write a query that calculates two quantities:
+To see this in action, write a Malloy query that calculates:
 - The total sales for each product category
 - The average age of users who bought products in that product category
 
 After you write the Malloy query, think about how you would accomplish this same task in SQL, and why it might be difficult.
 >>>malloy
 // Write one query to compute the total sales and average age of purchasing users for each product category
+
+run: orders -> {
+  group_by: order_items.products.category
+  aggregate:
+    total_sales
+    avg_age is users.avg(users.age)
+}
+>>>markdown
+Now that you have some useful aggregations, it might be helpful to define them as `measure`s in the model, so they can be easily reused.
 >>>markdown
 ## Step 4b: Calculating Percent of Total
-Malloy makes "[percent of total](https://malloydata.github.io/documentation/language/ungrouped-aggregates)" calculations very easy. For each product category, what is the total revenue, and calculate the percent of overall revenue.
+Malloy makes "percent of total" calculations very easy. For each product category, what is the total revenue, and calculate the percent of overall revenue.
 >>>malloy
 // Compute revenue for each product category, as well as percent of revenue relative to overall
->>>markdown
-Now that you have some useful aggregations, it might be helpful to define them as [measures](https://malloydata.github.io/documentation/language/fields#measures) in the model, so they can be easily reused.
+run: orders -> {
+  group_by: order_items.products.category
+  aggregate:
+    total_sales
+    # percent
+    pct_of_total is total_sales / all(total_sales)
+}
 >>>markdown
 ## Step 4c: Number Formatting
 [Add a tag](https://malloydata.github.io/documentation/visualizations/numbers#-percent) to the percent of total field so that the values render as percentages.
@@ -73,6 +109,21 @@ Now that you have some useful aggregations, it might be helpful to define them a
 The above query shows us revenue numbers per product category. Let's drill in deeper with a nested query. Can you add a `nest` to this query to show the top 5 brands by revenue for each category?
 >>>malloy
 // For each product category, show top 5 brands by revenue
+run: orders -> {
+  group_by: order_items.products.category
+  aggregate:
+    total_sales
+    # percent
+    pct_of_total is total_sales / all(total_sales)
+
+  # bar_chart
+  nest: by_brand is {
+    group_by: order_items.products.brand
+    aggregate: total_sales
+    top: 5
+  }
+  top: 5
+}
 >>>markdown
 ## Step 5b: Charting
 Add a tag to the nested query to [render it as a bar chart](https://malloydata.github.io/documentation/visualizations/bar_charts).
@@ -81,11 +132,33 @@ Add a tag to the nested query to [render it as a bar chart](https://malloydata.g
 Update the data model to save the "top brands" query directly onto the source. Now modify what you previously wrote to use this saved query.
 >>>malloy
 // Update what you previously wrote to use a saved query from the Source
+run: orders -> {
+  group_by: order_items.products.category
+  aggregate:
+    total_sales
+    # percent
+    pct_of_total is total_sales / all(total_sales)
+
+  # bar_chart
+  nest: rev_by_brand
+  top: 5
+}
 >>>markdown
 ## Step 7: Refining a Saved Query
 Try using a query refinement to take the analysis further. Perhaps you can filter to only look at top brands where the `department` is Men or Women? Or perhaps you want to only look at brands with products above a certain `retail_price` threshold?
 >>>malloy
 // Update this query again to include a refinement
+run: orders -> {
+  group_by: order_items.products.category
+  aggregate:
+    total_sales
+    # percent
+    pct_of_total is total_sales / all(total_sales)
+
+  # bar_chart
+  nest: rev_by_brand + { where: order_items.products.department = 'Men' }
+  top: 5
+}
 >>>markdown
 ## Step 8: Keep Exploring!
 There are a handful of other datasets in this repository that are ready for modeling, exploration, and analysis. Take what you've learned here and try to apply it to another dataset in the `data` subfolder. Or better yet, find a dataset relevant to your day-to-day work and use Malloy to model and analyze it!
