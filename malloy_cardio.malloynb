@@ -15,10 +15,13 @@ source: users is duckdb.table('data/ecommerce/users.parquet')
 // Create a source for the rest of the tables in this dataset:
 
 // products
+source: products is duckdb.table('data/ecommerce/products.parquet')
 
-// items
+// items -- this file doesn't exist. It should be `order_items.parquet`
+source: items is duckdb.table('data/ecommerce/items.parquet')
 
 // orders
+source: orders is duckdb.table('data/ecommerce/orders.parquet')
 >>>markdown
 ## Step 1: Warmup
 
