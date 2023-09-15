@@ -16,7 +16,7 @@ source: users is duckdb.table('data/ecommerce/users.parquet')
 
 // products
 
-// items
+// order_items
 
 // orders
 >>>markdown
